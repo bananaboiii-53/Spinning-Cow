@@ -45,7 +45,8 @@ def build_2d_pts(vertex_buffer,camera_pos,focal_dist):
     try:
       x_pr = (focal_dist*deltas[0])/deltas[1]
       y_pr = (focal_dist*deltas[2])/deltas[1]
-      point_buffer.append((copy(round(x_pr)+250),copy(-round(y_pr)+250))) #THIS IS WHERE IT IS FLIPPED OVER THE X AXIS
+      if deltas[1]>0:
+        point_buffer.append((copy(round(x_pr)+250),copy(-round(y_pr)+250))) #THIS IS WHERE IT IS FLIPPED OVER THE X AXIS
     except:
       pass
   return point_buffer
