@@ -3,6 +3,7 @@ import cv2
 from copy import copy
 from math import sin, cos, pi
 from random import randint
+from time import time
 
 focal_dist = 60
 camera_pos = (0,-7,3)
@@ -53,7 +54,8 @@ def rasterize(point_buffer,line_buffer):
   frame = np.zeros((500,500))
   for point in point_buffer:
     try:
-      frame[point[1],point[0]] = 1
+      if point[0]>0 and point[1]>0:
+        frame[point[1],point[0]] = 1
     except:
       pass
   for line in line_buffer:
@@ -64,6 +66,7 @@ def rasterize(point_buffer,line_buffer):
 
 line_buffer = []
 counter = 0
+start = time()
 while True:
   points = build_2d_pts(rotate_vertex_buffer_z(rotate_vertex_buffer_x(vertex_buffer,90),counter),camera_pos,75)
   frame = rasterize(points,line_buffer)
@@ -76,4 +79,7 @@ while True:
   if key==ord("d"): camera_pos = (camera_pos[0]+1,camera_pos[1],camera_pos[2])
   if key==ord("o"): camera_pos = (camera_pos[0],camera_pos[1],camera_pos[2]-1)
   if key==ord("p"): camera_pos = (camera_pos[0],camera_pos[1],camera_pos[2]+1)
-  counter += 0.5
+  counter += 1
+  if counter%100 == 0:
+   print (100/(time()-start))
+   start = time()
