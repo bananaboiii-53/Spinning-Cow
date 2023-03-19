@@ -5,8 +5,8 @@ from math import sin, cos, pi
 from random import randint
 from time import time
 
-focal_dist = 60
-camera_pos = (0,-7,3)
+focal_dist = 200
+camera_pos = (0,187,2)
 def create_vertex_buffer(filename):
   vertex_buffer = []
   with open(filename,"r") as FILE:
@@ -41,7 +41,7 @@ def rotate_vertex_buffer_z(vertex_buffer,degrees):
 def build_2d_pts(vertex_buffer,camera_pos,focal_dist):
   point_buffer = []
   for vertex in vertex_buffer:
-    deltas = (vertex[0]-camera_pos[0],vertex[1]-camera_pos[1],vertex[2]-camera_pos[2])
+    deltas = (vertex[0]-camera_pos[0],vertex[1]-(camera_pos[1]-focal_dist),vertex[2]-camera_pos[2])
     try:
       x_pr = (focal_dist*deltas[0])/deltas[1]
       y_pr = (focal_dist*deltas[2])/deltas[1]
@@ -65,22 +65,23 @@ def rasterize(point_buffer,line_buffer):
     frame = cv2.line(frame,pt_1,pt_2,1,1)
   return frame
 
+vertex_buffer = rotate_vertex_buffer_x(vertex_buffer,90)
 line_buffer = []
-counter = 0
+counter = 1
 start = time()
+moving_speed = 1
 while True:
-  points = build_2d_pts(rotate_vertex_buffer_z(rotate_vertex_buffer_x(vertex_buffer,90),counter),camera_pos,75)
+  points = build_2d_pts(rotate_vertex_buffer_z(vertex_buffer,counter),camera_pos,focal_dist)
   frame = rasterize(points,line_buffer)
   cv2.imshow("window",frame)
   key = cv2.waitKey(5)
   if key==ord("q"): exit()
-  if key==ord("w"): camera_pos = (camera_pos[0],camera_pos[1]+1,camera_pos[2])
-  if key==ord("s"): camera_pos = (camera_pos[0],camera_pos[1]-1,camera_pos[2])
-  if key==ord("a"): camera_pos = (camera_pos[0]-1,camera_pos[1],camera_pos[2])
-  if key==ord("d"): camera_pos = (camera_pos[0]+1,camera_pos[1],camera_pos[2])
-  if key==ord("o"): camera_pos = (camera_pos[0],camera_pos[1],camera_pos[2]-1)
-  if key==ord("p"): camera_pos = (camera_pos[0],camera_pos[1],camera_pos[2]+1)
-  counter += 1
-  if counter%100 == 0:
-   print (100/(time()-start))
-   start = time()
+  if key==ord("w"): camera_pos = (camera_pos[0],camera_pos[1]+moving_speed,camera_pos[2])
+  if key==ord("s"): camera_pos = (camera_pos[0],camera_pos[1]-moving_speed,camera_pos[2])
+  if key==ord("a"): camera_pos = (camera_pos[0]-moving_speed,camera_pos[1],camera_pos[2])
+  if key==ord("d"): camera_pos = (camera_pos[0]+moving_speed,camera_pos[1],camera_pos[2])
+  if key==ord("o"): camera_pos = (camera_pos[0],camera_pos[1],camera_pos[2]-moving_speed)
+  if key==ord("p"): camera_pos = (camera_pos[0],camera_pos[1],camera_pos[2]+moving_speed)
+  if key==ord("k"): focal_dist -= 1
+  if key==ord("l"): focal_dist += 1
+  counter += 2
